@@ -1,0 +1,49 @@
+<div class="p-4" style="width: 100vh;">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h2 id="tournament_name">Lobby for {{ tournament.name }} Tournament</h2>
+        </div>
+		<h6>Tournament Rules - 
+			<span id="info-icon" style="cursor: pointer; color: #007bff;" data-toggle="tooltip" 
+				title="To start the tournament: Wait for a player to join the lobby or invite a friend from the online friends menu. Each user who wants to participate must select an initial slot. WARNING: Once confirmed, the slot is assigned to that player and cannot be changed. When all slots are occupied, players must press the ready button to indicate they are ready. When all players are ready, the countdown begins. At the end of the countdown, click the Join button to enter the game. If you don't join the game within 60 seconds, you will automatically lose the match. After the first round, winners must click ready again to start the next match.">
+				Hold to info
+			</span>
+		</h6>		
+    </div>
+
+    <div id="user-nicknames" data-nicknames="{{ user_nicknames }}"></div>
+    <div id="tournament-data" data-mode="{{ tournament.mode }}" data-nb-players="{{ tournament.nb_players }}"
+        data-owner="{{ tournament.owner.username }}"></div>
+    <div id="rounds-data" style="display: none;">
+        {{ rounds|safe }}
+    </div>
+    <div id="current-user" data-username="{{ user.username }}" style="display: none;"></div>
+    <div id="current-user-nickname" data-nickname="{{ userprofile.nickname }}" style="display: none;"></div>
+    <div id="tournament_bracket" class="mt-4 text-center"></div>
+
+    <div class="row mt-4">
+        <div class="col-md-8 text-center">
+            <h3>Chat</h3>
+            <div id="lobby_messages" class="chat-log overflow-auto"
+                style="height: 150px; border: 1px solid #ccc; padding: 10px;"></div>
+            <form id="lobby_form" class="mt-2">
+                <input type="text" name="message" class="form-control" placeholder="Type a message..." />
+            </form>
+        </div>
+        <div class="col-md-4 text-center">
+            <h3>Users in Lobby</h3>
+            <ul id="users_in_lobby" class="list-unstyled">
+            </ul>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12 text-center">
+            {% if user.username == tournament.owner.username %}
+            <button id="start" class="btn btn-success lobby-start" disabled="true" style="display: none;">Start Round</button>
+            {% endif %}
+            <button id="ready" class="btn btn-success lobby-ready" disabled="true">Ready</button>
+            <button id="leave" class="btn btn-danger lobby-leave">Leave Tournament</button>
+        </div>
+    </div>
+</div>

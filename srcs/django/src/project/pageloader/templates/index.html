@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Pong</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/js/lib/jquery.min.js"></script>
+    <script src="/static/js/lib/popper.min.js"></script>
+    <script src="/static/js/lib/bootstrap.min.js"></script>   
+    <script src="/static/js/game/module/three.min.js"></script>    
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        #app {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+    </style>    
+</head>
+<body id="body">
+    <div id="app">
+    </div>
+    <script defer>
+        window.previousUrl = null;
+        window.initStarSky = function () {
+            window.starScene = new THREE.Scene();
+            window.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            window.renderer = new THREE.WebGLRenderer();
+    
+            const particlesGeometry = new THREE.BufferGeometry();
+            const counts = 3000;
+            const positionsStars = new Float32Array(counts * 3);
+            const range = 420;
+    
+            for (let i = 0; i < counts * 3; i++) {
+                positionsStars[i] = (Math.random() * range) - (range / 2);
+            }
+    
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positionsStars, 3));
+            const particlesMaterial = new THREE.PointsMaterial();
+            particlesMaterial.size = 0.2;
+            particlesMaterial.sizeAttenuation = true;
+    
+            window.particles = new THREE.Points(particlesGeometry, particlesMaterial);
+            window.renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(window.renderer.domElement);
+    
+            window.particles.position.set(0, 100, -100);
+            window.starScene.add(particles);
+    
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            window.starScene.add(ambientLight);
+            const pointLight = new THREE.PointLight(0xffffff, 1);
+            pointLight.position.set(10, 10, 10);
+            window.starScene.add(pointLight);
+    
+            window.camera.position.set(0, -40, 25);
+            window.camera.rotation.set(0.75, 0, 0);
+        }
+
+        window.animateStarSky = function ( ) {
+            if (window.starScene == null || window.camera == null || window.particles == null || window.renderer == null) {
+                return;
+            }
+            requestAnimationFrame(animateStarSky);
+            window.particles.rotation.x = 0.75;
+            window.particles.rotation.y += 0.001; 
+            window.renderer.render(starScene, camera);
+        }
+        window.singleSkyScene = function () {
+            window.particles.rotation.x = 0.75;
+            window.particles.rotation.y += 0.001;
+            window.renderer.render(starScene, camera);
+        }
+        window.initStarSky(window.renderer, window.starScene, window.camera, window.particles, window.starScene);
+        window.animateStarSky( window.renderer, window.starScene, window.camera, window.particles);
+
+        window.clearScene = function (scene) {
+
+            if(scene != null) {
+                while (scene.children.length > 0) {
+                    const object = scene.children[0];
+                    if (object.geometry) object.geometry.dispose();
+                    if (object.material) object.material.dispose();
+                    scene.remove(object);
+                }
+            }
+        }
+
+        window.clearAllScene = function () {
+            window.clearScene(window.starScene);
+            window.clearScene(window.gameScene);
+            window.starScene = null;
+            window.gameScene = null;
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+    <script src="{% static '/js/main.js' %}" defer></script>    
+</body>
+</html>

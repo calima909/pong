@@ -1,0 +1,218 @@
+<div class="row justify-content-center">
+    <div class="col-md-3">
+        
+        <div class="card border rounded shadow my-3" style="min-width: 20vh !important;">
+            <div class="card-body text-center">
+                <h2 class="card-title">Profile<br> Information</h2>
+                <div class="text-center mb-3">
+                    <img src="/static/media/{{ userprofile.img_profile }}" class="rounded-circle profile-img" style="width: 150px; height: 150px;" alt="User Image">
+                </div>
+                <h3 class="card-title text-nowrap">{{ userprofile.nickname }}</h3>
+            </div>
+        </div>
+        <div class="card border rounded shadow my-3" style="min-width: 20vh !important; overflow-y: scroll; height: 20vh; ">
+            <div class="card-body">
+                <h4 class="card-title text-center">Friends</h4>
+                <ul class="list-group list-group-flush">
+                    {% if friends %}
+                        {% for friend in friends %}
+                            <li class="list-group-item" >
+                                <a class="friend-item" data-id="{{ friend.user.id }}">{{ friend.nickname }}</a>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item text-center">No friends found</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card border rounded shadow my-3 ">
+            <div class="card-body" style="max-height: 8vh;">
+                <h4 class="card-title text-center">User Stats</h4>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-8">
+                        <canvas id="user-stats-chart"></canvas>
+                    </div>
+                    <div class="col-md-4 d-flex flex-column justify-content-center ">
+                        <ul class="list-group" id="stat-values">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Precision</span><span id="precision">{{ relative_game_statistics.precision |floatformat:2}}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Reactivity</span><span id="reactivity">{{ relative_game_statistics.reactivity|floatformat:2 }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Patience</span><span id="patience">{{ relative_game_statistics.patience|default:"2.50"  |floatformat:2}}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Madness</span><span id="madness">{{ relative_game_statistics.madness|floatformat:2 }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Leadership</span><span id="leadership">{{ relative_game_statistics.leadership |floatformat:2}}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card border rounded shadow my-3">
+            <div class="card-body" style="max-height: 30vh; overflow: scroll;">
+                <h4 class="card-title text-center">Game History</h4>
+                <div class="row text-center" id="game-stats">
+                    <div class="col-3">
+                        <strong>Wins</strong>
+                        <p id="game-wins"> {{ game_wins }}</p>
+                    </div>
+                    <div class="col-3">
+                        <strong>Losses</strong>
+                        <p id="game-losses">{{ game_losses }}</p>
+                    </div>
+                    <div class="col-3">
+                        <strong>Draws</strong>
+                        <p id="game-draws">{{ game_draws }}</p>
+                    </div>
+                    <div class="col-3">
+                        <strong>Abandons</strong>
+                        <p id="game-abandons">{{ game_abandons }}</p>
+                    </div>
+                </div>
+                <table class="table table-striped mt-3" id="game-history-table">
+                    <thead>
+                        <tr>
+                            <th>Created</th>
+                            <th>Game Name</th>
+                            <th>Type</th>
+                            <th>Winner</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if match_history %}
+                            {% for game in match_history %}
+                                <tr>
+                                    <td>{{ game.created }}</td>
+                                    <td><a href="#" class="game-link" data-id="{{ game.id }}">{{ game.name }}</a></td>
+                                    <td>
+                                        {% if game.player1 == game.player2 %}
+                                            Local Game
+                                        {% elif game.tournament %}
+                                            Tournament Game
+                                        {% else %}
+                                            Remote Game
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if game.player1 == game.player2 %}
+                                            {% if game.rules == 'time' %}
+                                                {% if game.player1_score < game.player2_score %}
+                                                    <span class="text-success">{{ game.winner.nickname }}</span>
+                                                {% elif game.player1_score > game.player2_score %}
+                                                    <span class="text-danger">Local Player 2</span>
+                                                {% else %}
+                                                    <span>Draw</span>
+                                                {% endif %}
+                                            {% else %}
+                                                {% if game.player1_score > game.player2_score %}
+                                                    <span class="text-success">{{ game.player1 }}</span>
+                                                {% elif game.player1_score < game.player2_score %}
+                                                    <span class="text-danger">Local Player 2</span>
+                                                {% else %}
+                                                    <span">Draw</span>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% else %}
+											{% if game.winner == userprofile.nickname %}
+												<span class="text-success">{{ game.winner }}</span>
+											{% else %}
+												<span class="text-danger">{{ game.winner }}</span>
+											{% endif %}
+                                        {% endif %}
+                                    </td>                                    
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center">No game history available</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border rounded shadow my-3">
+            <div class="card-body" style="max-height: 30vh; min-height: 30vh; overflow: scroll;">
+                <h4 class="card-title text-center">Tournament History</h4>
+                <div class="row text-center" id="tournament-stats">
+                    <div class="col-3">
+                        <strong>Wins</strong>
+                        <p id="tournament-wins">{{ tournament_wins }}</p>
+                    </div>
+                    <div class="col-3">
+                        <strong>Losses</strong>
+                        <p id="tournament-losses">{{ tournament_losses }}</p>
+                    </div>
+                </div>
+                <table class="table table-striped mt-3" id="tournament-history-table">
+                    <thead>
+                        <tr>
+                            <th>Tournament Name</th>
+                            <th>Status</th>
+                            <th>Winner</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tbody>
+                            {% if tournamnt_history %}
+                                {% for tournament in tournamnt_history %}
+                                    <tr>
+                                        <td>
+                                            {% if tournament.status == 'finished' %}
+                                                <a href="#" class="tournament-link" data-id="{{ tournament.id }}">{{ tournament.name }}</a>
+                                            {% else %}
+                                                <span class="text-muted">{{ tournament.name }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ tournament.status }}</td>
+                                        <td>
+											{% if tournament.winner %}
+												{% if tournament.winner == userprofile.nickname %}
+													<span class="text-success">{{ tournament.winner }}</span>
+												{% else %}
+													<span class="text-danger">{{ tournament.winner }}</span>
+												{% endif %}
+											{% else %}
+												<span>No winner yet</span>
+											{% endif %}
+										</td>
+										
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No tournament history available</td>
+                                </tr>
+                            {% endif %}
+                            </tbody>
+                            
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center my-3">
+    <button type="button" id="go-back-btn" class="btn btn-warning">Back</button>
+</div>
